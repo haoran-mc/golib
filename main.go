@@ -2,27 +2,24 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"gee"
 	"net/http"
 )
 
-// Engine is the union handler for all requests.
-type Engine struct{}
-
-func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	switch req.URL.Path {
-	case "/":
+func main() {
+	r := gee.New()
+	r.GET("/", func(w http.ResponseWriter, req *http.Request) {
 		_, _ = fmt.Fprintf(w, "URL.Path = %q\n", req.URL.Path)
-	case "/hello":
+	})
+
+	r.GET("/hello", func(w http.ResponseWriter, req *http.Request) {
 		for k, v := range req.Header {
 			_, _ = fmt.Fprintf(w, "Header[%q] = %q\n", k, v)
 		}
-	default:
-		_, _ = fmt.Fprintf(w, "404 NOT FOUND: %s\n", req.URL)
-	}
-}
+	})
 
-func main() {
-	engine := new(Engine)
-	log.Fatal(http.ListenAndServe(":9999", engine))
+	err := r.Run(":9999")
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
 }
