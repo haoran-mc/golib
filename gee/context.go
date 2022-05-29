@@ -15,6 +15,7 @@ type Context struct {
 	// request info
 	Path   string
 	Method string
+	Params map[string]string
 	// response info
 	StatusCode int
 }
@@ -28,19 +29,29 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 	}
 }
 
+// Param gets the HTTP request information in the URL, /hello/:name
+func (c *Context) Param(key string) string {
+	value, _ := c.Params[key]
+	return value
+}
+
+// PostForm gets the HTTP request information in the json-formatted request body
 func (c *Context) PostForm(key string) string {
 	return c.Req.FormValue(key)
 }
 
+// Query gets the HTTP request information in the URL, /hello?name=haoran
 func (c *Context) Query(key string) string {
 	return c.Req.URL.Query().Get(key)
 }
 
+// Status sets the HTTP response status code
 func (c *Context) Status(code int) {
 	c.StatusCode = code
 	c.Writer.WriteHeader(code)
 }
 
+// SetHeader sets the HTTP response header
 func (c *Context) SetHeader(key string, value string) {
 	c.Writer.Header().Set(key, value)
 }
