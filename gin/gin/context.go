@@ -1,4 +1,4 @@
-package gee
+package gin
 
 import (
 	"encoding/json"
@@ -31,7 +31,7 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 
 // Param gets the HTTP request information in the URL, /hello/:name
 func (c *Context) Param(key string) string {
-	value, _ := c.Params[key]
+	value := c.Params[key]
 	return value
 }
 
