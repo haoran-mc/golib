@@ -1,2 +1,2 @@
-github.com/haoran-mc/go_pkgs/gin/gin v0.0.0-20221212161232-faefe08cb424 h1:VbF4yJjMhlTH7hDtyr92+t/g83UaexiTXX262PMn5n0=
-github.com/haoran-mc/go_pkgs/gin/gin v0.0.0-20221212161232-faefe08cb424/go.mod h1:OmO9W1weklkFEGrgqwvbC0N6Y92T4zYUVe6lYzEJS/o=
+github.com/haoran-mc/go_pkgs/go_web/gee v0.0.0-20221218081759-8856c33ff621 h1:yhoI/Ag7maDWSV1Wfk/njp9aBqWNY/NShn62ZwGjQK4=
+github.com/haoran-mc/go_pkgs/go_web/gee v0.0.0-20221218081759-8856c33ff621/go.mod h1:cFiRtuuK+KC5Sy3NfCL/TdRXwSVMh2T87oX24yyMToM=
