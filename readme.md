@@ -3,6 +3,6 @@
 - [md5 算法](https://github.com/haoran-mc/golib/tree/main/md5)
 - golang 中用函数名字调用某个函数 [funcmap](https://github.com/haoran-mc/golib/tree/main/funcmap)
 - [gomail 的使用](https://github.com/haoran-mc/golib/tree/main/gomail)
-
+- 重读 http body 中的内容 [reread_httpbody](https://github.com/haoran-mc/golib/tree/main/reread_httpbody)
 
 
