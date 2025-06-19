@@ -3,8 +3,8 @@ package session
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-	"github.com/haoran-mc/golib/session/session_store"
+	"github.com/haoran-mc/golib/pkg/server/session/session_store"
+	"github.com/labstack/echo/v4"
 )
 
 type User struct {
@@ -17,41 +17,45 @@ const (
 	pass string = "pass"
 )
 
-func session() {
+func StartServer() {
 	session_store.InitCookieStore()
 	session_store.InitFilesystemStore()
 
-	engine := gin.Default()
+	e := echo.New()
 
-	engine.POST("/user", func(ctx *gin.Context) {
+	e.POST("/user", func(c echo.Context) error {
 		user := User{}
-		ctx.ShouldBindJSON(&user)
+		if err := c.Bind(&user); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"error": "invalid request",
+			})
+		}
 
-		session, _ := session_store.GetFileSystemSession(ctx.Request)
+		session, _ := session_store.GetFileSystemSession(c.Request())
 		session.Values[name] = user.Name
 		session.Values[pass] = user.Pass
-		session.Save(ctx.Request, ctx.Writer)
+		session.Save(c.Request(), c.Response())
 
-		ctx.JSON(http.StatusOK, gin.H{
+		return c.JSON(http.StatusOK, map[string]any{
 			"message":    "ok",
-			"session.ID": session.ID, // 仅在使用 FilesystemStore 时生成
+			"session.ID": session.ID,
 		})
 	})
 
-	engine.GET("/user", func(ctx *gin.Context) {
-		session, _ := session_store.GetFileSystemSession(ctx.Request)
-		name := session.Values[name]
-		pass := session.Values[pass]
+	e.GET("/user", func(c echo.Context) error {
+		session, _ := session_store.GetFileSystemSession(c.Request())
+		n := session.Values[name]
+		p := session.Values[pass]
 		data := session.Values["data"]
 
-		ctx.JSON(http.StatusOK, gin.H{
+		return c.JSON(http.StatusOK, map[string]any{
 			"message": "ok",
-			"name":    name,
-			"pass":    pass,
+			"name":    n,
+			"pass":    p,
 			"data":    data,
 			"id":      session.ID,
 		})
 	})
 
-	engine.Run(":8080")
+	e.Logger.Fatal(e.Start(":8080"))
 }

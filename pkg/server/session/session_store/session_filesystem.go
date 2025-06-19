@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/haoran-mc/golib/session/sessions"
+	"github.com/haoran-mc/golib/pkg/server/session/sessions"
 )
 
 var filesystemStore *sessions.FilesystemStore
