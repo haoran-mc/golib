@@ -17,6 +17,9 @@ func NewServerHTTP() *echo.Echo {
 	e.Server.WriteTimeout = 90 * time.Second
 	e.Use(middleware.Decompress())
 	e.Use(middleware.Recover())
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "[${time_rfc3339}] ${remote_ip} ${method} ${uri} ${status} ${latency_human}\n",
+	}))
 
 	e.GET("/", handler.Hello)
 
