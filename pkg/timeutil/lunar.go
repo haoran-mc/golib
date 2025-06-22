@@ -38,9 +38,9 @@ var (
 		0x049b0, 0x0a577, 0x0a4b0, 0x0aa50, 0x1b255, 0x06d20, 0x0ada0}
 )
 
-// 输入日期格式为yyyyMMdd,如20150101
+// 输入日期格式为 yyyyMMdd、20150101
 func Lunar(date string) string {
-	var monCyl, leapMonth int = 0, 0
+	var monCyl, leapMonth = 0, 0
 	t1, _ := time.Parse(timeFormat_yyyy_MM_dd, "1900-01-31 00:00:00")
 	t2, err := time.Parse(timeFormat_yyyyMMdd, date)
 	if err != nil {
@@ -48,7 +48,7 @@ func Lunar(date string) string {
 	}
 	offset := int((t2.UnixNano() - t1.UnixNano()) / 1000000 / 86400000)
 	monCyl = 14
-	var iYear, daysOfYear int = 0, 0
+	var iYear, daysOfYear = 0, 0
 
 	for iYear = 1900; iYear < 2050 && offset > 0; iYear++ {
 		daysOfYear = yearDays(iYear)
@@ -65,7 +65,7 @@ func Lunar(date string) string {
 	leapMonth = leapMonthMethod(iYear)
 	leap = false
 
-	var iMonth, daysOfMonth int = 0, 0
+	var iMonth, daysOfMonth = 0, 0
 
 	for iMonth = 1; iMonth < 13 && offset > 0; iMonth++ {
 		if leapMonth > 0 && iMonth == (leapMonth+1) && !leap {
@@ -108,11 +108,13 @@ func Lunar(date string) string {
 	}
 	return cyclical() + animalsYear() + "年" + doubleMonth + chineseNumber[month-1] + "月" + getChinaDayString(day)
 }
+
 func animalsYear() string {
 	return animals[(year-4)%12]
 }
+
 func yearDays(y int) int {
-	var i, sum int = 348, 348
+	var i, sum = 348, 348
 	for i = 0x8000; i > 0x8; i >>= 1 {
 		if (lunarInfo[y-1900] & i) != 0 {
 			sum++
@@ -120,6 +122,7 @@ func yearDays(y int) int {
 	}
 	return (sum + leapDays(y))
 }
+
 func getChinaDayString(day int) string {
 	n := day
 	if n%10 == 0 {
@@ -135,6 +138,7 @@ func getChinaDayString(day int) string {
 		return chineseTen[day/10] + chineseNumber[n]
 	}
 }
+
 func leapMonthMethod(y int) int {
 	return (int)(lunarInfo[y-1900] & 0xf)
 }
