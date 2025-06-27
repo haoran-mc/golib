@@ -23,7 +23,7 @@ func NewServerHTTP() *echo.Echo {
 
 	e.GET("/", handler.Hello)
 
-	echoRouter := e.Group("/")
+	echoRouter := e.Group("/xdgc")
 	{
 		echoRouter.GET("/*", func(c echo.Context) error {
 			p := c.Param("*")
