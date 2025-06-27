@@ -1,6 +1,9 @@
 
 
-> go get github.com/haoran-mc/golib/pkg
+#+begin_example
+  go get github.com/haoran-mc/golib
+#+end_example
+
 
 
 
