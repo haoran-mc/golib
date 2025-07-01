@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	log "log/slog"
 	"net/http"
 	"time"
 )
@@ -32,7 +31,6 @@ func doHttp(url string, method string, body io.Reader) (resp *http.Response, err
 func GetJson(url string, target any) error {
 	r, err := doHttp(url, http.MethodGet, nil)
 	if err != nil {
-		log.Error("get json failed", "error", err)
 		return err
 	}
 	defer r.Body.Close()
@@ -49,7 +47,6 @@ func PostJson(url string, target any) error {
 	}
 	resp, err := doHttp(url, http.MethodPost, bytes.NewBuffer(jsonValue))
 	if err != nil {
-		log.Error("post json failed", "error", err)
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
