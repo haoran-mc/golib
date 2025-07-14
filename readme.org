@@ -9,7 +9,6 @@
 
 | name            | import                                        |                      |
 |-----------------+-----------------------------------------------+----------------------|
-| go session      | github.com/haoran-mc/golib/pkg/server/session |                      |
 | funcmap         | github.com/haoran-mc/golib/pkg/funcmap        | 使用函数名字调用函数     |
 | reread_httpbody | github.com/haoran-mc/golib/pkg/rereadhttpbody | 重读 http body 中的内容 |
 | expire_map      | github.com/haoran-mc/golib/pkg/expiremap      | 简单的数据缓存过期功能                     |
