@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/haoran-mc/golib/internal/handler"
+	"github.com/haoran-mc/golib/pkg/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/valyala/fasthttp"
 )
 
 func NewServerHTTP() *echo.Echo {
@@ -61,4 +63,30 @@ func NewServerHTTP() *echo.Echo {
 		})
 	}
 	return e
+}
+
+func ProxyHandler(ctx *fasthttp.RequestCtx) {
+	client := &fasthttp.HostClient{
+		Addr: "127.0.0.1:9520",
+	}
+	req := &ctx.Request
+
+	req.SetHost("127.0.0.1:9520")
+	req.URI().SetScheme("http")
+
+	// 代理请求并接收响应
+	var resp fasthttp.Response
+	if upstreamErr := client.Do(req, &resp); upstreamErr != nil {
+		resp.SetStatusCode(http.StatusBadGateway)
+		resp.Header.Set("X-Fake", "true")
+		resp.Header.SetContentLength(0)
+		resp.ResetBody()
+		log.Error("upstream request failed", "url", req.URI().String(), "error", upstreamErr.Error())
+		return
+	}
+
+	// 响应复制回客户端
+	ctx.SetStatusCode(resp.StatusCode())
+	ctx.Response.SetBodyRaw(resp.Body())
+	resp.Header.CopyTo(&ctx.Response.Header)
 }

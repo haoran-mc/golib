@@ -14,5 +14,7 @@ func main() {
 	nowSolarDate := time.Now().Format("20060102")
 	fmt.Printf("==> today solar date: %s, today lunar date: %s\n", nowSolarDate, timeutil.Lunar(nowSolarDate))
 
-	http.Run(server.NewServerHTTP(), ":9520")
+	go http.Run(server.NewServerHTTP(), ":9520")
+
+	http.Proxy(":9088", server.ProxyHandler)
 }
