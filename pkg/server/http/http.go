@@ -4,16 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/valyala/fasthttp"
 )
 
-func Run(e *echo.Echo, addr string) {
+func Run(ctx context.Context, e *echo.Echo, addr string) {
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: e,
@@ -25,23 +22,17 @@ func Run(e *echo.Echo, addr string) {
 		}
 	}()
 
-	quit := make(chan os.Signal, 1)
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	fmt.Println("shutting down server...")
+	<-ctx.Done()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(shutdownCtx); err != nil {
 		panic(fmt.Sprintf("server shutdown failed: %s\n", err))
 	}
-	fmt.Println("server exiting")
+	fmt.Println("server exiting...")
 }
 
-func Proxy(addr string, handler fasthttp.RequestHandler) {
+func Proxy(ctx context.Context, addr string, handler fasthttp.RequestHandler) {
 	srv := &fasthttp.Server{
 		Handler: handler,
 	}
@@ -53,22 +44,16 @@ func Proxy(addr string, handler fasthttp.RequestHandler) {
 		}
 	}()
 
-	quit := make(chan os.Signal, 1)
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	fmt.Println("shutting down proxy...")
+	<-ctx.Done()
 
 	// fasthttp.Server.Shutdown() does not support context with timeout
 	if err := srv.Shutdown(); err != nil {
 		panic(fmt.Sprintf("proxy shutdown failed: %s\n", err))
 	}
-	fmt.Println("proxy exiting")
+	fmt.Println("proxy exiting...")
 }
 
-func RunWithTls(addr string, handler http.Handler, certFile, keyFile string) {
+func RunWithTls(ctx context.Context, addr string, handler http.Handler, certFile, keyFile string) {
 	tlsSrv := &http.Server{
 		Addr:    addr,
 		Handler: handler,
@@ -84,18 +69,12 @@ func RunWithTls(addr string, handler http.Handler, certFile, keyFile string) {
 		}
 	}()
 
-	quit := make(chan os.Signal, 1)
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	fmt.Println("shutting down server...")
+	<-ctx.Done()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := tlsSrv.Shutdown(ctx); err != nil {
+	if err := tlsSrv.Shutdown(shutdownCtx); err != nil {
 		panic(fmt.Sprintf("server shutdown failed: %s\n", err))
 	}
-	fmt.Println("server exiting")
+	fmt.Println("server(tls) exiting...")
 }

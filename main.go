@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os/signal"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/haoran-mc/golib/internal/server"
@@ -15,12 +19,30 @@ func main() {
 	nowSolarDate := time.Now().Format("20060102")
 	fmt.Printf("==> today solar date: %s, today lunar date: %s\n", nowSolarDate, timeutil.Lunar(nowSolarDate))
 
-	go pkghttp.Run(server.NewServerHTTP(), ":9520")
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 
-	go pkghttp.Proxy(":9088", server.ProxyHandler)
+	wg := &sync.WaitGroup{}
 
-	// curl --cacert certs/ec_cert.crt https://localhost:9443
-	go pkghttp.RunWithTls(":9443", http.HandlerFunc(server.HttpHandler), "certs/ec_cert.crt", "certs/ec_private.key")
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		pkghttp.Run(ctx, server.NewServerHTTP(), ":9520")
+	}()
 
-	select {}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		pkghttp.Proxy(ctx, ":9088", server.ProxyHandler)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		// curl --cacert certs/ec_cert.crt https://localhost:9443
+		pkghttp.RunWithTls(ctx, ":9443", http.HandlerFunc(server.HttpHandler), "certs/ec_cert.crt", "certs/ec_private.key")
+	}()
+
+	<-ctx.Done()
+	wg.Wait() // wait for all servers to shutdown
 }
