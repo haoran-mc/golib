@@ -90,3 +90,7 @@ func ProxyHandler(ctx *fasthttp.RequestCtx) {
 	ctx.Response.SetBodyRaw(resp.Body())
 	resp.Header.CopyTo(&ctx.Response.Header)
 }
+
+func HttpHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, HTTPS with ECC cert!\n")
+}
