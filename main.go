@@ -27,7 +27,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		pkghttp.Run(ctx, server.NewServerHTTP(), ":9520")
+		pkghttp.Run(ctx, server.NewServerHTTP(), ":9080")
 	}()
 
 	wg.Add(1)
