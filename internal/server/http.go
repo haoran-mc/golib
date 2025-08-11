@@ -25,26 +25,23 @@ func NewServerHTTP() *echo.Echo {
 
 	e.GET("/", handler.Hello)
 
-	echoRouter := e.Group("/xdgc")
+	echoRouter := e.Group("/echo")
 	{
 		echoRouter.GET("/*", func(c echo.Context) error {
 			p := c.Param("*")
 			return c.String(http.StatusOK, fmt.Sprintf("[GET] Path: %s\n", p))
 		})
-
 		echoRouter.POST("/*", func(c echo.Context) error {
 			p := c.Param("*")
 			body, _ := io.ReadAll(c.Request().Body)
 			fmt.Println(string(body))
 			return c.String(http.StatusOK, fmt.Sprintf("[POST] Path: %s, Data: %s\n", p, string(body)))
 		})
-
 		echoRouter.PUT("/*", func(c echo.Context) error {
 			p := c.Param("*")
 			body, _ := io.ReadAll(c.Request().Body)
 			return c.String(http.StatusOK, fmt.Sprintf("[PUT] Path: %s, Data: %s\n", p, string(body)))
 		})
-
 		echoRouter.DELETE("/*", func(c echo.Context) error {
 			p := c.Param("*")
 			body, _ := io.ReadAll(c.Request().Body)
@@ -52,15 +49,54 @@ func NewServerHTTP() *echo.Echo {
 		})
 	}
 
+	param := e.Group("/param")
+	{
+		// 1. 路径参数
+		param.GET("/params/:foobar", func(c echo.Context) error {
+			foobar := c.Param("foobar")
+			return c.String(http.StatusOK, fmt.Sprintf("param(foobar): %s\n", foobar))
+		})
+		// 2. querymap, http://127.0.0.1:8080/querymap?foobar=xxxx
+		param.GET("/querymap", func(c echo.Context) error {
+			foobar := c.QueryParam("foobar")
+			return c.String(http.StatusOK, fmt.Sprintf("querymap(foobar): %s\n", foobar))
+		})
+		// 3. 请求体
+		param.POST("/body", func(c echo.Context) error {
+			type User struct {
+				Name string `json:"name"`
+				Pass string `json:"pass"`
+			}
+			var u User
+			err := c.Bind(&u)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, err.Error())
+			}
+			return c.JSON(http.StatusOK, u)
+		})
+		// 4. form 表单
+		param.POST("/form", func(c echo.Context) error {
+			foobar := c.FormValue("foobar")
+			return c.String(http.StatusOK, foobar)
+		})
+	}
+
+	// 重定向
 	redirect := e.Group("/redirect")
 	{
 		redirect.GET("/hello1", func(c echo.Context) error {
 			return c.Redirect(http.StatusFound, "/redirect/hello2")
 		})
-
 		redirect.GET("/hello2", func(c echo.Context) error {
 			return c.String(http.StatusOK, "OK")
 		})
+	}
+
+	// 文件上传
+	file := e.Group("/file")
+	{
+		file.POST("/upload", handler.SingleFileUpload)
+		file.POST("/multi", handler.MultiFilesUpload)
 	}
 	return e
 }
