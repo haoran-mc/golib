@@ -1,0 +1,43 @@
+哈希函数：
+1. 优先选择 BLAKE2b，安全性接近 SHA-3，且更高性能；
+2. 其次 SHA3-256，比 SHA-256 更安全，相对于 sha256 的 Merkle-Damgård 结构不易受到长度扩展攻击；
+3. 考虑兼容与通用标准选择 SHA-256；
+
+
+密码哈希（Password Hashing）：
+1. Argon2，PHC 优胜者 [[https://www.password-hashing.net/#phc][Password Hasing Competition]]；
+
+
+消息认证码（Message Authentication Code, MAC）：
+1. HMAC-SHA256
+
+
+对称加密：
+1. AES-GCM，不用 AES-CBC 单独加密（无认证），这是很多历史漏洞的根源；
+
+
+认证加密（Authenticated Encryption, AE）：
+1. AES-GCM；
+
+
+非对称加密：
+
+
+数字签名（Digital Signature）：
+1. Ed25519；
+   #+begin_src go
+     // 生成 Ed25519 密钥对
+     ed25519.GenerateKey(rand.Reader)
+
+     // 使用 Ed25519 私钥对消息进行签名
+     ed25519.Sign(privateKey, message)
+
+     // 使用 Ed25519 公钥验证签名
+     ed25519.Verify(publicKey, message, sig)
+   #+end_src
+
+
+密钥派生：
+1. 网络协议派生会话密钥：HKDF 首选；
+2. 基于 SHA-3 的系统选择 KMAC/cSHAKE；
+3. 老系统迁移使用 PBKDF2 过渡，逐步替换为 HKDF/Argon2；
