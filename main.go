@@ -40,7 +40,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		// curl --cacert certs/ec_cert.crt https://localhost:9443
-		pkghttp.RunWithTls(ctx, ":9443", http.HandlerFunc(server.HttpHandler), "certs/ec_cert.crt", "certs/ec_private.key")
+		pkghttp.RunWithTls(ctx, ":9443", http.HandlerFunc(server.HTTPHandler), "certs/ec_cert.crt", "certs/ec_private.key")
 	}()
 
 	<-ctx.Done()

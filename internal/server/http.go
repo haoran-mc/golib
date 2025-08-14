@@ -34,7 +34,6 @@ func NewServerHTTP() *echo.Echo {
 		echoRouter.POST("/*", func(c echo.Context) error {
 			p := c.Param("*")
 			body, _ := io.ReadAll(c.Request().Body)
-			fmt.Println(string(body))
 			return c.String(http.StatusOK, fmt.Sprintf("[POST] Path: %s, Data: %s\n", p, string(body)))
 		})
 		echoRouter.PUT("/*", func(c echo.Context) error {
@@ -103,12 +102,13 @@ func NewServerHTTP() *echo.Echo {
 
 func ProxyHandler(ctx *fasthttp.RequestCtx) {
 	client := &fasthttp.HostClient{
-		Addr: "127.0.0.1:9520",
+		Addr: "127.0.0.1:9080",
 	}
 	req := &ctx.Request
 
-	req.SetHost("127.0.0.1:9520")
+	req.SetHost("127.0.0.1:9080")
 	req.URI().SetScheme("http")
+	req.URI().SetPath("/echo" + string(req.URI().Path()))
 
 	// 代理请求并接收响应
 	var resp fasthttp.Response
@@ -127,6 +127,6 @@ func ProxyHandler(ctx *fasthttp.RequestCtx) {
 	resp.Header.CopyTo(&ctx.Response.Header)
 }
 
-func HttpHandler(w http.ResponseWriter, r *http.Request) {
+func HTTPHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, HTTPS with ECC cert!\n")
 }
